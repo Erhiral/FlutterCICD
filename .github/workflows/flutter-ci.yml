@@ -1,0 +1,82 @@
+name: Flutter CI/CD on Windows
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # --------------------------
+      # Setup Flutter and dependencies
+      # --------------------------
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Flutter Doctor
+        run: flutter doctor -v
+
+      # --------------------------
+      # Install dependencies and run checks
+      # --------------------------
+      - name: Get Flutter Dependencies
+        run: flutter pub get
+
+      - name: Analyze Code
+        run: flutter analyze
+
+      - name: Run Tests
+        run: flutter test
+
+      # --------------------------
+      # Build for DEV flavor
+      # --------------------------
+      - name: Build DEV APK
+        run: flutter build apk --flavor dev --target lib/main_dev.dart --release
+
+      # --------------------------
+      # Build for STAGING flavor
+      # --------------------------
+      - name: Build STAGING APK
+        run: flutter build apk --flavor staging --target lib/main_staging.dart --release
+
+      # --------------------------
+      # Build for PROD flavor
+      # --------------------------
+      - name: Build PROD APK
+        run: flutter build apk --flavor prod --target lib/main_prod.dart --release
+
+      # --------------------------
+      # Build AAB for PROD
+      # --------------------------
+      - name: Build PROD AAB
+        run: flutter build appbundle --flavor prod --target lib/main_prod.dart --release
+
+      # --------------------------
+      # Upload artifacts
+      # --------------------------
+      - name: Upload all build outputs
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-flutter-builds
+          path: build/app/outputs/
+

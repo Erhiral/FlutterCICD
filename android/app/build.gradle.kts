@@ -38,21 +38,21 @@ android {
         }
     }
 
-    flavorDimensions "app"
+    flavorDimensions += "app"
 
     productFlavors {
-        dev {
-            dimension "app"
-            applicationIdSuffix ".dev"
-            versionNameSuffix "-dev"
+        create("dev") {
+            dimension = "app"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
         }
-        staging {
-            dimension "app"
-            applicationIdSuffix ".staging"
-            versionNameSuffix "-staging"
+        create("staging") {
+            dimension = "app"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
         }
-        prod {
-            dimension "app"
+        create("prod") {
+            dimension = "app"
         }
     }
 }
